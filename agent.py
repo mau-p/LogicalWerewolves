@@ -13,6 +13,8 @@ class Agent:
 
 
 class Werewolf(Agent):
+    def __init__(self):
+        super().__init__()
 
     def vote(self):
         pass
@@ -22,12 +24,16 @@ class Werewolf(Agent):
 
 
 class Villager(Agent):
+    def __init__(self):
+        super().__init__()
 
     def vote(self):
         pass
 
 
 class LittleGirl(Agent):
+    def __init__(self):
+        super().__init__()
 
     def vote(self):
         pass
