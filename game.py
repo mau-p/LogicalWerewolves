@@ -12,15 +12,13 @@ class Game:
     def create_werewolves(self):
         werewolves = []
         for _ in range(self.number_werewolves):
-            werewolves.append(agent.Werewolf)
-
+            werewolves.append(agent.Werewolf())
         return werewolves
 
     def create_villagers(self):
         villagers = []
         for _ in range(self.number_villagers):
-            villagers.append(agent.Villager)
-
+            villagers.append(agent.Villager())
         return villagers
 
     def night(self):

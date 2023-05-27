@@ -1,12 +1,15 @@
-import random
+import itertools
 
 
 class Agent:
+    id_iter = itertools.count()
+
     def __init__(self):
         self.beliefs = None
         self.known_villagers = []
         self.known_werewolves = []
         self.known_little_girl = []
+        self.id = next(Agent.id_iter)
 
     def share_knowledge(self):
         pass
