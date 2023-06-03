@@ -27,7 +27,6 @@ class Game:
         print('The night has fallen')
         for werewolf in self.werewolves:
             if not self.villagers:
-                print('Werewolves win')
                 break
             kill = random.choice(self.villagers)
             self.villagers.remove(kill)
@@ -51,7 +50,11 @@ class Game:
         self.all_agents.remove(kill)
         if kill in self.villagers:
             self.villagers.remove(kill)
-            print(f'{kill.id} has been voted off, they were a villager')
+            if isinstance(kill, agent.LittleGirl):
+                print(f'{kill.id} has been voted off, they were the little girl')
+            else:
+                print(f'{kill.id} has been voted off, they were a villager')
+
         else:
             self.werewolves.remove(kill)
             print(f'{kill.id} has been voted off, they were a werewolf')
@@ -59,10 +62,11 @@ class Game:
     def run_game(self):
         while True:
             self.night()
+            if not self.villagers:
+                print('Werewolves win')
+                break
             self.day()
             if not self.werewolves:
                 print('Villagers win')
                 break
-            elif not self.villagers:
-                print('Werewolves win')
-                break
+
