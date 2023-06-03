@@ -1,6 +1,5 @@
 import itertools
 
-
 class Agent:
     id_iter = itertools.count()
 
@@ -14,17 +13,16 @@ class Agent:
     def share_knowledge(self):
         pass
 
-
 class Werewolf(Agent):
     def __init__(self):
         super().__init__()
 
-    def vote(self):
+    def vote(self, ):
+
         pass
 
     def share_knowledge(self):
         pass
-
 
 class Villager(Agent):
     def __init__(self):
@@ -32,7 +30,6 @@ class Villager(Agent):
 
     def vote(self):
         pass
-
 
 class LittleGirl(Agent):
     def __init__(self):
