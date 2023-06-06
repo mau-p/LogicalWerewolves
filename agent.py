@@ -9,9 +9,13 @@ class Agent:
         self.known_werewolves = []
         self.known_little_girl = []
         self.id = next(Agent.id_iter)
+        self.reliability = 0
 
     def share_knowledge(self):
         pass
+
+    def update_rel(self, value):
+        self.reliability += value
 
 class Werewolf(Agent):
     def __init__(self):

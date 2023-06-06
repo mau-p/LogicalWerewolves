@@ -9,6 +9,7 @@ class Game:
         self.little_girl = agent.LittleGirl()
         self.villagers = self.create_villagers()
         self.all_agents = self.werewolves + self.villagers
+        self.girl_vote_prob = 0.7
         
     def create_werewolves(self):
         werewolves = []
@@ -37,16 +38,25 @@ class Game:
         print('The day has risen')
         votes = []
 
-        for villager in self.villagers:
-            if isinstance(villager, agent.LittleGirl):
-                votes.append(random.choice(self.werewolves))
+        for a in self.all_agents:
+            vote = None
+            if isinstance(a, agent.LittleGirl):
+                if random.rand() > self.girl_vote_prob:
+                    vote = random.choice(self.werewolves)
+                else:
+                    vote = random.choice(self.all_agents)
+            elif isinstance(a, agent.Werewolf):
+                vote = random.choice(self.villagers)
             else:
-                votes.append(random.choice(self.all_agents))
+                vote = random.choice(self.all_agents)
 
-        for werewolf in self.werewolves:
-            votes.append(random.choice(self.villagers))
-
+            votes.append(vote)
+            
         kill = max(set(votes), key=votes.count)
+        for a in self.all_agents:
+            #TODO: even deze logic checken, ik weet niet zeker of dit klopt
+            a.update_rel(1 if votes[self.all_agents.index(a)] == kill and isinstance(kill, agent.Werewolf) else -1)
+
         self.all_agents.remove(kill)
         if kill in self.villagers:
             self.villagers.remove(kill)
@@ -69,4 +79,3 @@ class Game:
             if not self.werewolves:
                 print('Villagers win')
                 break
-
