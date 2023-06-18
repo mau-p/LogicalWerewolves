@@ -5,27 +5,42 @@ import numpy as np
 class Agent:
     id_iter = itertools.count()
 
-    def __init__(self):
-        self.beliefs = None
+    def __init__(self, n_agents):
         self.id = next(Agent.id_iter)
-        self.reliability = 0
+        self.n_agents = n_agents
+        self.beliefs = self.create_beliefs()
+        
 
-    def update_rel(self, value):
-        self.reliability += value
+    def create_beliefs(self):
+        values = [random.choice([-1, 0, 1]) for _ in range(self.n_agents)]
+        return {index: value for index, value in enumerate(values)}
+    
 
-    def get_reliability(self):
-        return self.reliability
+    def tie_argmax(self, arr):
+        max_value = np.max(arr)
+        max_indices = np.where(arr == max_value)[0]
+        random_index = np.random.choice(max_indices)
+        return random_index
+    
+
+    def tie_argmin(self, arr):
+        min_value = np.min(arr)
+        min_indices = np.where(arr == min_value)[0]
+        random_index = np.random.choice(min_indices)
+        return random_index
+    
 
 class Werewolf(Agent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, n_agents):
+        super().__init__(n_agents)
 
-    def vote(self, rel_scores, all_agents, villagers, werewolves):
-        return random.choice(villagers)
+    def vote(self):
+        return self.tie_argmax(self.beliefs)
+
 
 class Villager(Agent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, n_agents):
+        super().__init__(n_agents)
 
     def vote(self, rel_scores, all_agents, villagers, werewolves):
         vote = all_agents[np.argmin(rel_scores)]
@@ -34,8 +49,8 @@ class Villager(Agent):
         return vote
 
 class LittleGirl(Agent):
-    def __init__(self, vote_prob=0.5):
-        super().__init__()
+    def __init__(self, n_agents, vote_prob=0.5):
+        super().__init__(n_agents)
         self.vote_prob = vote_prob
 
     def vote(self, rel_scores, all_agents, villagers, werewolves):
