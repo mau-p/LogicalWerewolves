@@ -1,6 +1,7 @@
 import agent
 import numpy as np
-import itertools 
+import itertools
+import random
 
 class Game:
     def __init__(self, order_knowledge, number_werewolves, number_villagers):
@@ -36,7 +37,8 @@ class Game:
                 return id
         return None
     
-    def get_next_vote_cycle(self, current_cycle):
+    def get_next_vote_cycle(self):
+        current_cycle = self.vote_cycle
         for i in range(len(current_cycle)):
             next_cycle = current_cycle[i:] + current_cycle[:i]
 
@@ -46,11 +48,23 @@ class Game:
     def night(self):
         print('The night has fallen')
 
-        votes = [0] * self.n_agents
-        for werewolf in self.werewolves:
-            votes[werewolf.vote()] += 1
+        votes = {}  # Dictionary to store the vote count for each villager
+        for villager in self.villagers:
+            votes[villager] = 0
 
-        kill = self.get_agent(self.tie_argmax(votes))
+        # Each werewolf votes for a villager
+        for werewolf in self.werewolves:
+            vote = werewolf.vote()
+            if vote in votes:
+                votes[vote] += 1
+
+        max_votes = max(votes.values())
+        elected = [villager for villager, vote_count in votes.items() if vote_count == max_votes]
+
+        if len(elected) == 1:
+            kill = elected[0]
+        else:
+            kill = random.choice(elected)
 
         self.villagers.remove(kill)
         self.all_agents.remove(kill)
@@ -58,7 +72,7 @@ class Game:
         print(f'The werewolves have killed {kill.id}')
 
 
-    def day(self, vote_cycle):
+    def day(self):
         print(f'All agents:         {[a.id for a in self.all_agents]}')
         print(f'Werewolves:         {[a.id for a in self.werewolves]}')
         print('The day has risen')
@@ -75,18 +89,14 @@ class Game:
         # Update knowledge that x has been killed
 
 
-        for agent in vote_cycle:
-            vote = agent.vote()
-
-
         
     def run_game(self):
         while True:
             self.night()
-            self.day(self.vote_cycle)
+            self.day()
             if len(self.villagers) < len(self.werewolves):
                 print('Werewolves win')
                 break
             
             print('Villagers win')
-            self.get_next_vote_cycle(self.vote_cycle)
+            self.get_next_vote_cycle()
