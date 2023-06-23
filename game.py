@@ -11,8 +11,11 @@ class Game:
         self.villagers = self.create_villagers()
         self.all_agents = self.werewolves + self.villagers
         
-    def get_rel_scores(self):
-        return [a.get_reliability() for a in self.all_agents]    
+    def get_rel_scores_all(self):
+        return [a.get_reliability() for a in self.all_agents]   
+
+    def get_rel_scores_villagers(self):
+        return [a.get_reliability() for a in self.villagers] 
 
     def create_werewolves(self):
         werewolves = []
@@ -30,7 +33,8 @@ class Game:
     def night(self):
         print('The night has fallen')
 
-        rel_scores = self.get_rel_scores()
+        rel_scores = self.get_rel_scores_villagers()
+        print(np.argmax(rel_scores))
         kill = self.villagers[np.argmax(rel_scores)]
 
         self.villagers.remove(kill)
@@ -43,7 +47,7 @@ class Game:
 
     def day(self):
         self.shuffle_agents() # Shuffle the agents to prevent bias when all scores are equal
-        rel_scores = self.get_rel_scores()
+        rel_scores = self.get_rel_scores_all()
         print(f'All agents:         {[a.id for a in self.all_agents]}')
         print(f'Werewolves:         {[a.id for a in self.werewolves]}')
         print(f'Reliability scores: {rel_scores}')
@@ -78,4 +82,7 @@ class Game:
             self.day()
             if not self.werewolves:
                 print('Villagers win')
+                break
+            if not self.villagers:
+                print('Werewolves win')
                 break
