@@ -1,18 +1,13 @@
----
----
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-  <title>{{ page.title }}</title>
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
-</head>
-<body>
-  {{ content }}
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
-    });
+  <meta charset="UTF-8">
+    <link rel="stylesheet" media="all" href="normalize.css">
+    <link rel="stylesheet" media="all" href="core.css">
+  <link rel="stylesheet" media="all" href="style.css">
+  <script type="text/javascript"
+    src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
   </script>
-</body>
+</head>
+<body data-document>&nbsp;</body>
 </html>
