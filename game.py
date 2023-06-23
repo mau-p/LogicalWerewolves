@@ -1,6 +1,7 @@
 import agent_class
 import numpy as np
 import random
+import ascii_art
 
 class Game:
     def __init__(self, knowledge_order, number_werewolves, number_villagers):
@@ -69,7 +70,7 @@ class Game:
 
     
     def night(self):
-        print('The night has fallen')
+        print('\n~~~~~~~~~~The night has fallen~~~~~~~~~~')
 
         votes = {}  # Dictionary to store the vote count for each villager
         for villager in self.villagers:
@@ -116,12 +117,13 @@ class Game:
 
 
     def day(self):
-        print(f'All agents:         {[a.id for a in self.all_agents]}')
+        print('\n~~~~~~~~~~The day has risen~~~~~~~~~~')
+        print(f'Villagers:         {[a.id for a in self.villagers]}')
         print(f'Werewolves:         {[a.id for a in self.werewolves]}')
-        print('The day has risen')
 
-        for agent in self.all_agents:
-            print(f'Agent {agent.id} beliefs: {agent.beliefs}')
+
+        #for agent in self.all_agents:
+        #    print(f'Agent {agent.id} beliefs: {agent.beliefs}')
         # Proceed to vote
 
         vote_cycle = self.all_agents
@@ -182,17 +184,20 @@ class Game:
     def run_game(self):
         round = 1
         while True:
-            print(f'~~~~~~~~~~~~~~~~~~ ROUND {round} ~~~~~~~~~~~~~~~~~~')
+            print(f'\n################### Day {round} ###################\n')
             self.night()
             if len(self.villagers) <= len(self.werewolves):
                 print('Werewolves win')
+                ascii_art.get_werewolf()
                 break
             self.day()
             if len(self.villagers) <= len(self.werewolves):
                 print('Werewolves win')
+                ascii_art.get_werewolf()
                 break
             if not self.werewolves:
-                print('Villagers win')
+                print('Villagers win, the village is safe')
+                ascii_art.get_village()
                 break
 
             round += 1
