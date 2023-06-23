@@ -6,8 +6,8 @@ The website of the project containing further information about the logical form
 
 ## Running the code
 
-Running the code in python requires two command line arguments: the number of werewolves and the number of villagers. The code can then be run as follows:
+Running the code in python requires three command line arguments: the degree of knowledge, the number of werewolves and the number of villagers. The code can then be run as follows:
 
 ```
-python3 main.py <n_werewolves> <n_villagers>
+python3 main.py <knowledge_deg> <n_werewolves> <n_villagers>
 ```

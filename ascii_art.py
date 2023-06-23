@@ -1,3 +1,5 @@
+# ASCII art from ascii.co.uk
+
 def get_werewolf():
     print(r"""
 
@@ -29,7 +31,7 @@ def get_village():
                     :' |  | []  -|   ''--:.;[,.'\,/
                     '  |[]|,.--'' '',   ''-,.    |
                       ..    ..-''    ;       ''. '
-                    
+
     
     
     

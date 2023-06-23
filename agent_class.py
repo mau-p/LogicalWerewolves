@@ -12,18 +12,18 @@ class Agent:
         values = [random.choice([-1, 0, 1]) for _ in range(self.n_agents)]
         return {index: value for index, value in enumerate(values)}
     
-
     def tie_argmin(self, dictionary):
-        min_value = min(dictionary.values())  # Find the minimum value
-        min_keys = [key for key, value in dictionary.items() if value == min_value]  # Find keys with minimum value
-        random_key = random.choice(min_keys)  # Randomly select a key from the keys with minimum value
+        min_value = min(dictionary.values())
+        min_keys = [key for key, value in dictionary.items() if value == min_value] 
+        random_key = random.choice(min_keys)  
         return random_key
 
     def tie_argmax(self, dictionary):
-        max_value = max(dictionary.values())  # Find the maximum value
-        max_keys = [key for key, value in dictionary.items() if value == max_value]  # Find keys with maximum value
-        random_key = random.choice(max_keys)  # Randomly select a key from the keys with maximum value
+        max_value = max(dictionary.values())  
+        max_keys = [key for key, value in dictionary.items() if value == max_value]  
+        random_key = random.choice(max_keys)  
         return random_key
+
 
 class Werewolf(Agent):
     def __init__(self, n_agents):
@@ -33,6 +33,7 @@ class Werewolf(Agent):
     def vote(self):
         return self.tie_argmax(self.beliefs)
 
+
 class Villager(Agent):
     def __init__(self, n_agents):
         super().__init__(n_agents)
@@ -40,6 +41,7 @@ class Villager(Agent):
 
     def vote(self):
         return self.tie_argmin(self.beliefs)
+
 
 class LittleGirl(Agent):
     def __init__(self, n_agents, discovery_prob):

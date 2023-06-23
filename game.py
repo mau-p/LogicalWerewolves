@@ -46,6 +46,12 @@ class Game:
     
 
     def update_knowledge(self, kill, score_update):
+        """
+        Works as follows: all the people who voted for a villager get their scores downgraded 
+        by other agents by variable score_update. However all the agents who voted for agents
+        who voted for a villager get their score upgraded by score_update/2, and so forth. 
+        So opposite is true for werewolves. 
+        """
         reward = score_update
         votes = self.votes
         target = [kill]
@@ -140,11 +146,16 @@ class Game:
         vote_cycle = self.all_agents
         random.shuffle(vote_cycle)
         self.votes = {}
-        votes_count = {}  # Dictionary to store the vote count for each village
+        votes_count = {} 
         
         for agent in self.all_agents:
             votes_count[agent.id] = 0
 
+        
+        """
+        The agents vote iteratively. If they trust the person casting a vote more than the
+        subject of the vote the agents will trust the subject less. The inverse is also true. 
+        """
         for voter in vote_cycle:
             votee = voter.vote()
             self.votes[voter.id] = votee
@@ -161,6 +172,7 @@ class Game:
                     if trust_votee < trust_voter:
                         viewer.beliefs[votee] -= 3
 
+        # Determine person with most votes. If tie, choose randomly
         max_votes = max(votes_count.values())
         elected = [villager for villager, vote_count in votes_count.items() if vote_count == max_votes]
 
@@ -172,6 +184,7 @@ class Game:
         kill_agent = self.get_agent(kill)
         self.all_agents.remove(kill_agent)
 
+        # Determine if positive or negative reward based on instance
         if isinstance(kill_agent, agent_class.LittleGirl):
             print(f'{kill} has been voted off, they were a little girl \n')
             self.villagers.remove(kill_agent)
@@ -191,7 +204,8 @@ class Game:
         
         for a in self.all_agents:
             a.beliefs.pop(kill)   
-        
+
+
     def run_game(self):
         round = 1
         while True:
