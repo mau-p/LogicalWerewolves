@@ -1,2 +1,9 @@
 theme: jekyll-theme-cayman
 layout: post
+
+plugins:
+  - jekyll-mathjax
+
+mathjax:
+  enable: true
+  input: "tex"
