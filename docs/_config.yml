@@ -1,3 +1,4 @@
 theme: jekyll-theme-cayman
 layout: default
-usemathjax: true
+plugins: jekyll-mathjax
+```
