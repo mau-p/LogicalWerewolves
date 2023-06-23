@@ -10,12 +10,13 @@ class Game:
         self.n_agents = self.number_werewolves + self.number_villagers +1
         self.girl_vote_prob = 0.3 # Probability that girl has seen wolves kill during night
         self.werewolves = self.create_werewolves()
+        self.little_girl = agent.LittleGirl(self.n_agents, self.girl_vote_prob)
         self.villagers = self.create_villagers()
-        self.little_girl = [agent.LittleGirl(self.n_agents, self.girl_vote_prob)]
-        self.all_agents = self.werewolves + self.villagers + self.little_girl
-
+        
+        self.all_agents = self.werewolves + self.villagers
         self.start_vote_agent = itertools.count()
-        self.vote_cycle = [i for i in range(0, self.n_agents)]
+        self.first = Truee = [i for i in range(0, self.n_agents)]
+        self.round = 0
 
     def create_werewolves(self):
         werewolves = []
@@ -34,7 +35,7 @@ class Game:
     def get_agent(self, id):
         for agent in self.all_agents:
             if agent.id == id:
-                return id
+                return agent
         return None
     
     def get_next_vote_cycle(self):
@@ -50,7 +51,7 @@ class Game:
 
         votes = {}  # Dictionary to store the vote count for each villager
         for villager in self.villagers:
-            votes[villager] = 0
+            votes[villager.id] = 0
 
         # Each werewolf votes for a villager
         for werewolf in self.werewolves:
@@ -66,8 +67,11 @@ class Game:
         else:
             kill = random.choice(elected)
 
+
+        kill = self.get_agent(kill)
         self.villagers.remove(kill)
         self.all_agents.remove(kill)
+        
 
         print(f'The werewolves have killed {kill.id}')
 
@@ -77,12 +81,13 @@ class Game:
         print(f'Werewolves:         {[a.id for a in self.werewolves]}')
         print('The day has risen')
 
-        # Update knowledge that x has been killed
-     
+        # Update knowledge about killed person
+
+not self.Firstfirst                    if self.round != 0:
+            
 
 
         # Proceed to vote
-
 
 
 
@@ -98,5 +103,4 @@ class Game:
                 print('Werewolves win')
                 break
             
-            print('Villagers win')
             self.get_next_vote_cycle()
