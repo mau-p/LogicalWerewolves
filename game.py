@@ -50,9 +50,12 @@ class Game:
         votes = self.votes
         target = [kill]
 
+        print(f'Original kill: {kill}')
+        print(f'Votes: {votes}')
+
         for _ in range(self.knowledge_order):
             next_target = []
-            
+            print(f'target this round {target}')
             # Update beliefs for target
             for voter, voted in votes.items():
                 if voted in target:
@@ -62,9 +65,17 @@ class Game:
                         if voter not in next_target:
                             next_target.append(voter)
 
-                        if voter in self.all_agents:
+                        if self.get_agent(voter) in self.all_agents:
+                            if ((reward < 0) and isinstance(self.get_agent(voter), agent_class.Villager)) or ((reward > 0) and isinstance(self.get_agent(voter), agent_class.Werewolf)):
+                                correct = 'CORRECT'
+                            else:
+                                correct = 'INCORRECT'
+                            
+                            print(f'agent {agent.id} updates beliefs about {voter} by {-reward}. This is {correct}')
                             agent.beliefs[voter] -= reward
             
+            if len(next_target) == 0:
+                break
             target = next_target
             reward /= -2
 
@@ -162,15 +173,15 @@ class Game:
         self.all_agents.remove(kill_agent)
 
         if isinstance(kill_agent, agent_class.LittleGirl):
-            print(f'{kill} has been voted off, they were a little girl')
+            print(f'{kill} has been voted off, they were a little girl \n')
             self.villagers.remove(kill_agent)
             score_update = 4
         elif isinstance(kill_agent, agent_class.Villager):
-            print(f'{kill} has been voted off, they were a villager')
+            print(f'{kill} has been voted off, they were a villager \n')
             score_update = 4
             self.villagers.remove(kill_agent)
         elif isinstance(kill_agent, agent_class.Werewolf):
-            print(f'{kill} has been voted off, they were a werewolf')
+            print(f'{kill} has been voted off, they were a werewolf \n')
             self.werewolves.remove(kill_agent)
             score_update = -4
 
