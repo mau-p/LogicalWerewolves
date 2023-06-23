@@ -1,6 +1,7 @@
 ---
 theme: jekyll-theme-cayman
 layout: post
+usemathjax: true
 ---
 # Logical Werewolves
 
