@@ -1,7 +1,12 @@
 ---
 theme: jekyll-theme-cayman
-layout: post
-usemathjax: true
+plugins:
+  - jekyll-mathjax
+
+mathjax:
+  enable: true
+  input: "tex"
+
 ---
 # Logical Werewolves
 
