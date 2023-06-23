@@ -1,7 +1,3 @@
----
-theme: jekyll-theme-cayman
-layout: default
----
 # Logical Werewolves
 
 ## The Game
