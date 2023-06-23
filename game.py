@@ -3,7 +3,7 @@ import numpy as np
 import random
 
 class Game:
-    def __init__(self, order_knowledge, number_werewolves, number_villagers):
+    def __init__(self, knowledge_order, number_werewolves, number_villagers):
         self.number_werewolves = number_werewolves
         self.number_villagers = number_villagers
         self.n_agents = self.number_werewolves + self.number_villagers +1
@@ -15,6 +15,7 @@ class Game:
         self.votes = {}
         self.first = True
         self.round = 0
+        self.knowledge_order = knowledge_order
 
     def create_werewolves(self):
         werewolves = []
@@ -42,6 +43,31 @@ class Game:
                 return agent
         return None
     
+
+    def update_knowledge(self, kill, score_update):
+        reward = score_update
+        votes = self.votes
+        target = [kill]
+
+        for _ in range(self.knowledge_order):
+            next_target = []
+            
+            # Update beliefs for target
+            for voter, voted in votes.items():
+                if voted in target:
+                    for agent in self.all_agents:
+                        if agent == self.get_agent(voter):
+                            continue
+                        if voter not in next_target:
+                            next_target.append(voter)
+
+                        if voter in self.all_agents:
+                            agent.beliefs[voter] -= reward
+            
+            target = next_target
+            reward /= -2
+
+    
     def night(self):
         print('The night has fallen')
 
@@ -68,13 +94,8 @@ class Game:
         self.villagers.remove(kill_agent)
         self.all_agents.remove(kill_agent)
 
-        if not self.first:
-            for voter, voted in self.votes.items():
-                if voted == kill:
-                    for agent in self.all_agents:
-                        if agent == self.get_agent(voter):
-                            continue
-                        agent.beliefs[voter] -= 1
+        self.update_knowledge(kill, score_update=4)
+
 
         # If little girl is alive
         if self.little_girl in self.villagers:
@@ -139,33 +160,29 @@ class Game:
         self.all_agents.remove(kill_agent)
 
         if isinstance(kill_agent, agent_class.LittleGirl):
-            print(f'{kill} has been voted of, they were a little girl')
+            print(f'{kill} has been voted off, they were a little girl')
             self.villagers.remove(kill_agent)
-            score_update = 3
+            score_update = 4
         elif isinstance(kill_agent, agent_class.Villager):
-            print(f'{kill} has been voted of, they were a villager')
-            score_update = 3
+            print(f'{kill} has been voted off, they were a villager')
+            score_update = 4
             self.villagers.remove(kill_agent)
         elif isinstance(kill_agent, agent_class.Werewolf):
-            print(f'{kill} has been voted of, they were a werewolf')
+            print(f'{kill} has been voted off, they were a werewolf')
             self.werewolves.remove(kill_agent)
-            score_update = -3
+            score_update = -4
+
 
         # Update knowledge that x has been killed
-
-        for voter, voted in self.votes.items():
-            if voted == kill:
-                for agent in self.all_agents:
-                    if agent == self.get_agent(voter):
-                        continue
-                    if not voter == kill:
-                        agent.beliefs[voter] -= score_update
+        self.update_knowledge(kill, score_update)
         
         for a in self.all_agents:
             a.beliefs.pop(kill)   
         
     def run_game(self):
+        round = 1
         while True:
+            print(f'~~~~~~~~~~~~~~~~~~ ROUND {round} ~~~~~~~~~~~~~~~~~~')
             self.night()
             if len(self.villagers) <= len(self.werewolves):
                 print('Werewolves win')
@@ -177,4 +194,5 @@ class Game:
             if not self.werewolves:
                 print('Villagers win')
                 break
-            
+
+            round += 1
