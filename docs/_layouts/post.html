@@ -1,2 +1,18 @@
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+---
+---
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{{ page.title }}</title>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML"></script>
+</head>
+<body>
+  {{ content }}
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    });
+  </script>
+</body>
+</html>
