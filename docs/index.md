@@ -1,6 +1,6 @@
 ---
 theme: jekyll-theme-cayman
-layout: default
+layout: post
 ---
 # Logical Werewolves
 
