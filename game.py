@@ -10,13 +10,15 @@ class Game:
         self.n_agents = self.number_werewolves + self.number_villagers +1
         self.werewolves = self.create_werewolves()
         self.little_girl = agent_class.LittleGirl(self.n_agents, 0.2)
-        print(f"little girl: {self.little_girl.id}")
+        # print(f"little girl: {self.little_girl.id}")
         self.villagers = self.create_villagers()
         self.all_agents = self.werewolves + self.villagers
         self.votes = {}
         self.first = True
         self.round = 0
         self.knowledge_order = knowledge_order
+        self.correct_updates = 0
+        self.incorrect_updates = 0
 
     def create_werewolves(self):
         werewolves = []
@@ -56,12 +58,12 @@ class Game:
         votes = self.votes
         target = [kill]
 
-        print(f'Original kill: {kill}')
-        print(f'Votes: {votes}')
+        # print(f'Original kill: {kill}')
+        # print(f'Votes: {votes}')
 
         for _ in range(self.knowledge_order):
             next_target = []
-            print(f'target this round {target}')
+            # print(f'target this round {target}')
             # Update beliefs for target
             for voter, voted in votes.items():
                 if voted in target:
@@ -74,10 +76,12 @@ class Game:
                         if self.get_agent(voter) in self.all_agents:
                             if ((reward < 0) and isinstance(self.get_agent(voter), agent_class.Villager)) or ((reward > 0) and isinstance(self.get_agent(voter), agent_class.Werewolf)):
                                 correct = 'CORRECT'
+                                self.correct_updates += 1
                             else:
                                 correct = 'INCORRECT'
+                                self.incorrect_updates += 1
                             
-                            print(f'agent {agent.id} updates beliefs about {voter} by {-reward}. This is {correct}')
+                            # print(f'agent {agent.id} updates beliefs about {voter} by {-reward}. This is {correct}')
                             agent.beliefs[voter] -= reward
             
             if len(next_target) == 0:
@@ -87,7 +91,7 @@ class Game:
 
     
     def night(self):
-        print('\n~~~~~~~~~~The night has fallen~~~~~~~~~~')
+        # print('\n~~~~~~~~~~The night has fallen~~~~~~~~~~')
 
         votes = {}  # Dictionary to store the vote count for each villager
         for villager in self.villagers:
@@ -123,20 +127,20 @@ class Game:
             
             # Wolves spot little girl
             if random.random() < 0.1:
-                print('LITTLE GIRL DISCOVERED')
+                # print('LITTLE GIRL DISCOVERED')
                 for werewolf in self.werewolves:
                     werewolf.beliefs[self.little_girl.id] = 10000
 
 
         for a in self.all_agents:
             a.beliefs.pop(kill)
-        print(f'The werewolves have killed {kill}')
+        # print(f'The werewolves have killed {kill}')
 
 
     def day(self):
-        print('\n~~~~~~~~~~The day has risen~~~~~~~~~~')
-        print(f'Villagers:         {[a.id for a in self.villagers]}')
-        print(f'Werewolves:         {[a.id for a in self.werewolves]}')
+        # print('\n~~~~~~~~~~The day has risen~~~~~~~~~~')
+        # print(f'Villagers:         {[a.id for a in self.villagers]}')
+        # print(f'Werewolves:         {[a.id for a in self.werewolves]}')
 
 
         #for agent in self.all_agents:
@@ -186,15 +190,15 @@ class Game:
 
         # Determine if positive or negative reward based on instance
         if isinstance(kill_agent, agent_class.LittleGirl):
-            print(f'{kill} has been voted off, they were a little girl \n')
+            # print(f'{kill} has been voted off, they were a little girl \n')
             self.villagers.remove(kill_agent)
             score_update = 4
         elif isinstance(kill_agent, agent_class.Villager):
-            print(f'{kill} has been voted off, they were a villager \n')
+            # print(f'{kill} has been voted off, they were a villager \n')
             score_update = 4
             self.villagers.remove(kill_agent)
         elif isinstance(kill_agent, agent_class.Werewolf):
-            print(f'{kill} has been voted off, they were a werewolf \n')
+            # print(f'{kill} has been voted off, they were a werewolf \n')
             self.werewolves.remove(kill_agent)
             score_update = -4
 
@@ -209,20 +213,23 @@ class Game:
     def run_game(self):
         round = 1
         while True:
-            print(f'\n################### Day {round} ###################\n')
+            # print(f'\n################### Day {round} ###################\n')
             self.night()
             if len(self.villagers) <= len(self.werewolves):
-                print('Werewolves win')
-                ascii_art.get_werewolf()
-                break
+                # print('Werewolves win')
+                # ascii_art.get_werewolf()
+                agent_class.Agent.reset_iteration()
+                return 0, self.correct_updates/(self.correct_updates + self.incorrect_updates), round
             self.day()
             if len(self.villagers) <= len(self.werewolves):
-                print('Werewolves win')
-                ascii_art.get_werewolf()
-                break
+                # print('Werewolves win')
+                # ascii_art.get_werewolf()
+                agent_class.Agent.reset_iteration()
+                return 0, self.correct_updates/(self.correct_updates + self.incorrect_updates), round
             if not self.werewolves:
-                print('Villagers win, the village is safe')
-                ascii_art.get_village()
-                break
+                # print('Villagers win, the village is safe')
+                # ascii_art.get_village()
+                agent_class.Agent.reset_iteration()
+                return 1, self.correct_updates/(self.correct_updates + self.incorrect_updates), round
 
             round += 1

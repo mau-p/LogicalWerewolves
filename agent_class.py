@@ -1,7 +1,7 @@
 import itertools
 import random
 class Agent:
-    id_iter = itertools.count()
+    id_iter = itertools.count(0)
 
     def __init__(self, n_agents):
         self.id = next(Agent.id_iter)
@@ -23,6 +23,9 @@ class Agent:
         max_keys = [key for key, value in dictionary.items() if value == max_value]  
         random_key = random.choice(max_keys)  
         return random_key
+    
+    def reset_iteration():
+        Agent.id_iter = itertools.count(0)
 
 
 class Werewolf(Agent):
@@ -55,5 +58,5 @@ class LittleGirl(Agent):
     def look_overnight(self, werewolves):
         for werewolf in werewolves:
             if random.random() < self.discovery_prob:
-                print(f"Little girl spotted werewolf {werewolf.id} killing during the night")
+                # print(f"Little girl spotted werewolf {werewolf.id} killing during the night")
                 self.beliefs[werewolf.id] = -100000
