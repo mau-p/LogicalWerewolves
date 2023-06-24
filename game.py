@@ -9,7 +9,7 @@ class Game:
         self.number_villagers = number_villagers
         self.n_agents = self.number_werewolves + self.number_villagers +1
         self.werewolves = self.create_werewolves()
-        self.little_girl = agent_class.LittleGirl(self.n_agents, 0.2)
+        self.little_girl = agent_class.LittleGirl(self.n_agents, self.number_werewolves, 0.2)
         # print(f"little girl: {self.little_girl.id}")
         self.villagers = self.create_villagers()
         self.all_agents = self.werewolves + self.villagers
@@ -23,7 +23,7 @@ class Game:
     def create_werewolves(self):
         werewolves = []
         for _ in range(self.number_werewolves):
-            werewolves.append(agent_class.Werewolf(self.n_agents))
+            werewolves.append(agent_class.Werewolf(self.n_agents, self.number_werewolves))
         
         for werewolf in werewolves:
             for other_werewolf in werewolves:
@@ -36,7 +36,7 @@ class Game:
     def create_villagers(self):
         villagers = []
         for _ in range(self.number_villagers):
-            villagers.append(agent_class.Villager(self.n_agents))
+            villagers.append(agent_class.Villager(self.n_agents, self.number_werewolves))
         villagers.append(self.little_girl)
         return villagers
     
@@ -88,6 +88,10 @@ class Game:
                 break
             target = next_target
             reward /= -2
+
+        for agent in self.all_agents:
+            agent.memory.append(agent.beliefs)
+            agent.beliefs = agent.default_beliefs
 
     
     def night(self):
@@ -166,9 +170,13 @@ class Game:
             votes_count[votee] += 1
 
             for viewer in vote_cycle:
+                trust_votee, trust_voter = 0, 0
                 if viewer != voter:
-                    trust_votee = viewer.beliefs[votee]
-                    trust_voter = viewer.beliefs[voter.id]
+                    for belief in viewer.memory:
+                        if votee in belief:
+                            trust_votee += belief[votee]
+                        if voter.id in belief:
+                            trust_voter += belief[voter.id]
 
                     if trust_votee > trust_voter:
                         viewer.beliefs[voter.id] -= 3

@@ -1,12 +1,19 @@
 import itertools
 import random
+from collections import deque
+
+
 class Agent:
     id_iter = itertools.count(0)
 
-    def __init__(self, n_agents):
+    def __init__(self, n_agents, number_werewolves):
         self.id = next(Agent.id_iter)
         self.n_agents = n_agents
-        self.beliefs = self.create_beliefs()        
+        self.default_beliefs = self.create_beliefs() 
+        self.beliefs = self.default_beliefs
+        self.memory = deque(maxlen=number_werewolves)
+        self.memory.append(self.beliefs)
+
 
     def create_beliefs(self):
         values = [random.choice([-1, 0, 1]) for _ in range(self.n_agents)]
@@ -29,8 +36,8 @@ class Agent:
 
 
 class Werewolf(Agent):
-    def __init__(self, n_agents):
-        super().__init__(n_agents)
+    def __init__(self, n_agents, number_werewolves):
+        super().__init__(n_agents, number_werewolves)
         self.beliefs[self.id] = -1000000
 
     def vote(self):
@@ -38,8 +45,8 @@ class Werewolf(Agent):
 
 
 class Villager(Agent):
-    def __init__(self, n_agents):
-        super().__init__(n_agents)
+    def __init__(self, n_agents, number_werewolves):
+        super().__init__(n_agents, number_werewolves)
         self.beliefs[self.id] = 1000000
 
     def vote(self):
@@ -47,8 +54,8 @@ class Villager(Agent):
 
 
 class LittleGirl(Agent):
-    def __init__(self, n_agents, discovery_prob):
-        super().__init__(n_agents)
+    def __init__(self, n_agents, number_werewolves, discovery_prob):
+        super().__init__(n_agents, number_werewolves)
         self.beliefs[self.id] = 1000000
         self.discovery_prob = discovery_prob
 
