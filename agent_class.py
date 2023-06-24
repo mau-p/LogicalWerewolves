@@ -6,7 +6,8 @@ class Agent:
     def __init__(self, n_agents):
         self.id = next(Agent.id_iter)
         self.n_agents = n_agents
-        self.beliefs = self.create_beliefs()        
+        self.beliefs = self.create_beliefs()
+        self.memory = {'WEREWOLF': 0, 'VILLAGER': 0}
 
     def create_beliefs(self):
         values = [random.choice([-1, 0, 1]) for _ in range(self.n_agents)]
