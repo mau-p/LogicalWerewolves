@@ -27,18 +27,44 @@ the total number of agents is $m=x+y$. One villager is set to be the
 little girl, who can see the werewolves with a probability $p_{sw}$.
 Additionally, every agent $a$ has a reliability score $r_a$. The game
 has two phases: the day and night phase. The phases follow each other
-consecutively, starting from the night phase. During the night phase the
-werewolves kill the villager with the highest reliability score. During
-the day phase all agents vote on an agent to vote off. The werewolves
-vote for a random villager, while the villagers vote for the agent with
-the lowest reliability score. If the little girl saw the werewolves, she
-votes for a random werewolf; Otherwise she follows the villager voting
-strategy. The game ends when there are no werewolves or no villagers
-left. Below we show a flowchart of the game.
+consecutively, starting from the night phase. The game ends when the amount of werewolves becomes equal to the amount of villagers, or when the villagers have voted away all werewolves.
+
+### Night phase
+During the night phase, the werewolfs vote which villager they should kill. Voting happens based on the beliefs that each werewolf has in the sense that they always vote for the agent they deem the most reliable. The little girl can spot the werewolfs during the night, and additionally the werewolves can spot the little girl peeking during the night. 
+
+### Day phase
+During the day phase all agents vote on an agent to vote off. Each werewolf will vote for the villager that has the highest reliability score in their own beliefs. Villagers and the little girl will always vote for the agent with the lowest reliability score in their own beliefs.
 
 | ![flowchart](assets/images/flowchart.png) |
 |:--:|
 | Figure 1: a flowchart of the game The Werewolves of Millers Hollow |
+
+## Agents
+The basic agent is initialized with the following items:
+- A unique ID to identify the agent
+- The total number of agents $m$
+- The beliefs of the agent $B_m$
+
+Additionally, each agent has access to a set of custom methods
+- create_beliefs: generates a list with random beliefs of size $m$ about the other agents. Reliability of other agents is randomly generated where reliability score $r_m \in [-1, 0, 1]$.
+- tie_argmin: takes as input a dictionary of beliefs, returns the ID of the agent with the lowest reliability score for agent $m$. In case of ties, returns a random ID from the list of lowest reliability scores. 
+- tie_argmax: takes as input a dictionary of beliefs, returns the ID of the agent with the highest reliability score for agent $m$. In case of ties, returns a random ID from the list of highest reliability scores.
+### Werewolf
+A werewolf agent inherits from the basic agent, and has the following additions:
+- Sets the beliefs about itself to $-1000000$ to avoid suicide or self-voting
+- A vote method that returns the value from tie_argmax
+
+### Villager
+A villager agent inherits from the basic agent, and has the following additions:
+- Sets the beliefs about itself to $+1000000$ to avoid self-voting
+- A vote method that returns the value from tie_argmin
+
+### Little girl
+A little girl agent inherits from the basic agent, and has the following additions:
+- Sets the beliefs about itself to $+1000000$ to avoid self-voting
+- A discovery probability $p_{sw}$ that regulates the chance that the little girl spots a werewolf during the night
+- A vote method that returns the value from tie_argmin
+- A look_overnight method that allows the little girl to peak at the werewolves during the night with the discovery probability. If the little girl spots a werewolf, the beliefs about this werewolf are set to $-100000$ such that the girl will always vote for this werewolf after spotting them
 
 ## Formal model
 The formal model of our simulation is as follows:
