@@ -99,3 +99,16 @@ $$M ::= \langle S, \pi, R_1, ..., R_m \rangle$$, with:
  - $$\pi (s_i)(w_j) = t$$ iff $$a_j \in W$$
  - $$\pi (s_i)(l_j) = t$$ iff $$a_j \in L$$
  - $$R = $$tbd
+
+## Implementation Details
+
+### Initialization
+Each agent has a set of beliefs that indicate how much an agent trusts another agent. These values are initizialized randomly with values -1, 0 or 1. This was done to induce small biases in the trust that agents have for each other. The trust for all villagers themselves was put at 1000000 so that they don't vote for themselves. Similarly, werewolves are initialized with a -1000000 reliability score about themselves but also about the other werewolves. This is because the werewolves know the other werewolves and generally do not vote against each other. 
+
+### Night Phase
+The game starts with the night phase. In the night phase, the werewolves vote for the agent with the highest reliability score. Typically, the agent with the highest reliability score is the agent that votes for werewolves during the day so it is advantageous for the werewolves to eliminate that agent. If there is a tie in the werewolf vote, a random agent is chosen between the options with the most votes. 
+During the night, the little girl is given a chance to peek and try to find who the werewolves are. Each night, the little girl is given a .2 probability of discovering a werewolf. If see discovers a werewolf, she sets the reliability score of that werewolf to -100000. 
+
+At the end of the night, once the werewolves have killed a villager, a public announcement is made. This public announcement contains the role of the person that has just been killed. In the first round, nothing is done with this information. In the later rounds, the procedure is as follows: since additional information has been introduced in the game, the agents now update their beliefs. The agents now look at the votes from the day, and identify the agents that voted for the kill agent. The werewolves always kill a villager during the night, this means that the agents who voted for this agent to be killed are less trustworthy. Therefore, all agents substract 4 from their reliability score of the agents who voted for the villager. 
+
+### Day Phase
