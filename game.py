@@ -60,36 +60,27 @@ class Game:
 
         # print(f'Original kill: {kill}')
         # print(f'Votes: {votes}')
+        for voter, voted in votes.items():
+            if voted in target:
+                voter = self.get_agent(voter)
+                for agent in self.all_agents:
+                    if agent == voter:
+                        continue
 
-        for _ in range(self.knowledge_order):
-            next_target = []
-            # print(f'target this round {target}')
-            # Update beliefs for target
-            for voter, voted in votes.items():
-                if voted in target:
-                    for agent in self.all_agents:
-                        if agent == self.get_agent(voter):
-                            continue
-                        if voter not in next_target:
-                            next_target.append(voter)
+                    if voter in self.all_agents:
+                        if ((reward < 0) and isinstance(voter, agent_class.Villager)) \
+                            or ((reward > 0) and isinstance(voter, agent_class.Werewolf)):
+                            correct = 'CORRECT'
+                            self.correct_updates += 1
+                        else:
+                            correct = 'INCORRECT'
+                            self.incorrect_updates += 1
+                        
+                        # print(f'agent {agent.id} updates beliefs about {voter} by {-reward}. This is {correct}')
+                        agent.beliefs[voter.id] -= reward
 
-                        if self.get_agent(voter) in self.all_agents:
-                            if ((reward < 0) and isinstance(self.get_agent(voter), agent_class.Villager)) or ((reward > 0) and isinstance(self.get_agent(voter), agent_class.Werewolf)):
-                                correct = 'CORRECT'
-                                self.correct_updates += 1
-                            else:
-                                correct = 'INCORRECT'
-                                self.incorrect_updates += 1
-                            
-                            # print(f'agent {agent.id} updates beliefs about {voter} by {-reward}. This is {correct}')
-                            agent.beliefs[voter] -= reward
-            
-            if len(next_target) == 0:
-                break
-            target = next_target
-            reward /= -2
 
-    
+
     def night(self):
         # print('\n~~~~~~~~~~The night has fallen~~~~~~~~~~')
 
@@ -121,15 +112,8 @@ class Game:
 
         # If little girl is alive
         if self.little_girl in self.villagers:
-
             # Little girls spots wolves
             self.little_girl.look_overnight(self.werewolves)
-            
-            # Wolves spot little girl
-            if random.random() < 0.1:
-                # print('LITTLE GIRL DISCOVERED')
-                for werewolf in self.werewolves:
-                    werewolf.beliefs[self.little_girl.id] = 10000
 
 
         for a in self.all_agents:
