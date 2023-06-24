@@ -112,3 +112,18 @@ During the night, the little girl is given a chance to peek and try to find who 
 At the end of the night, once the werewolves have killed a villager, a public announcement is made. This public announcement contains the role of the person that has just been killed. In the first round, nothing is done with this information. In the later rounds, the procedure is as follows: since additional information has been introduced in the game, the agents now update their beliefs. The agents now look at the votes from the day, and identify the agents that voted for the kill agent. The werewolves always kill a villager during the night, this means that the agents who voted for this agent to be killed are less trustworthy. Therefore, all agents substract 4 from their reliability score of the agents who voted for the villager. 
 
 ### Day Phase
+
+Having updated their knowledge about the kill overnight, the agents must now vote who to kill during the day. The votings happens iteratively, meaning that the agents vote one after the other. The voting order is shuffled each round so that no bias is introduced by the voting order. After each vote, all the other agents have a chance to update their knowledge. This is done as follows: if agent has a single person they trust the most, that is, argmax returns a single agent: 
+- If the little girl votes for another person, it means this person is not reliable. Therefore, the trust in that agent is set to the lowest -1.
+- If another agent votes for the little girl, it means this person is not reliable. Therefore, the trsut in that agent is set to the lowest -1.
+- In the case both happen, it has been implemented that the agent who voted for the little girl is the actual lowest. This was done because it could also be possible that the little girl has not yet discovered a werewolf yet.
+
+After all agents are voted, the votes are counted. If there is a tie, a random choice is performed between the agents with the most votes. Next, another public announcement is made. Namely, that another agent has been killed, and their role. Again, the agents get a chance to update their knowledge based on the public announcement. This is done in a similar fashion as overnight, except this time the killed person can also be a werewolf. The knowledge update procedure is now as follows: 
+- The agents look at the votes that have been performed, and look at who has voted for the killed agent
+- If that agent is a werewolf, they increase their trust in the agents agents who have voted by 4, since they have voted as a villager should have.
+- However, they voted to kill a villager, the trust in them is decreased by 4
+
+
+This process is then repeated until there are as much villagers are werewolves, or there are no werewolves left. 
+
+
