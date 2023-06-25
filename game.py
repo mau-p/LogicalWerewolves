@@ -170,6 +170,10 @@ class Game:
                         # votee thinks that voter thinks they are a little girl (they voted more for werewolves)
                         # TODO: adjust behavior
                         pass
+                elif viewer.id == votee:
+                    # angery votee
+                    # TODO: implement properly
+                    pass
                 else:
                     # if viewer is werewolf
                     if isinstance(viewer, agent_class.Werewolf):
