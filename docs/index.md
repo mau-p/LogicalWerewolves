@@ -103,26 +103,44 @@ $$M ::= \langle S, \pi, R_1, ..., R_m \rangle$$, with:
 ## Implementation Details
 
 ### Initialization
-Each agent has a set of beliefs that indicate how much an agent trusts another agent. These values are initizialized randomly with values -1, 0 or 1. This was done to induce small biases in the trust that agents have for each other. The trust for all villagers themselves was put at 1000000 so that they don't vote for themselves. Similarly, werewolves are initialized with a -1000000 reliability score about themselves but also about the other werewolves. This is because the werewolves know the other werewolves and generally do not vote against each other. 
+Each agent has a set of beliefs that indicate how much an agent trusts another agent. These values are initizialized randomly with values -1, 0 or 1. This was done to induce small biases and randomness in the trust that agents have for each other. The agents do not have any reliability score about themselves, and werewolves also do not have any reliability about the other werewolves since they never vote for each other. 
 
 ### Night Phase
 The game starts with the night phase. In the night phase, the werewolves vote for the agent with the highest reliability score. Typically, the agent with the highest reliability score is the agent that votes for werewolves during the day so it is advantageous for the werewolves to eliminate that agent. If there is a tie in the werewolf vote, a random agent is chosen between the options with the most votes. 
-During the night, the little girl is given a chance to peek and try to find who the werewolves are. Each night, the little girl is given a .2 probability of discovering a werewolf. If see discovers a werewolf, she sets the reliability score of that werewolf to -100000. 
+During the night, the little girl is given a chance to peek and try to find who the werewolves are. Each night, the little girl is given a .2 probability of discovering a werewolf. If see discovers a werewolf, she adds that werewolf to a list of known werewolves. 
 
-At the end of the night, once the werewolves have killed a villager, a public announcement is made. This public announcement contains the role of the person that has just been killed. In the first round, nothing is done with this information. In the later rounds, the procedure is as follows: since additional information has been introduced in the game, the agents now update their beliefs. The agents now look at the votes from the day, and identify the agents that voted for the kill agent. The werewolves always kill a villager during the night, this means that the agents who voted for this agent to be killed are less trustworthy. Therefore, all agents substract 4 from their reliability score of the agents who voted for the villager. 
+At the end of the night, once the werewolves have killed a villager, a public announcement is made. This public announcement contains the role of the person that has just been killed. In the first round, nothing is done with this information since public vote has taken place. In the later rounds, the procedure is as follows: since additional information has been introduced in the game, the agents now update their beliefs. The agents now look at the votes from the day, and identify the agents that voted for the killed agent. The werewolves always kill a villager during the night, this means that the agents who voted for this agent to be killed are less trustworthy. Therefore, all agents substract 4 from their reliability score of the agents who voted for the villager. 
 
 ### Day Phase
 
-Having updated their knowledge about the kill overnight, the agents must now vote who to kill during the day. The votings happens iteratively, meaning that the agents vote one after the other. The voting order is shuffled each round so that no bias is introduced by the voting order. After each vote, all the other agents have a chance to update their knowledge. This is done as follows: if agent has a single person they trust the most, that is, argmax returns a single agent: 
-- If the little girl votes for another person, it means this person is not reliable. Therefore, the trust in that agent is set to the lowest -1.
-- If another agent votes for the little girl, it means this person is not reliable. Therefore, the trsut in that agent is set to the lowest -1.
-- In the case both happen, it has been implemented that the agent who voted for the little girl is the actual lowest. This was done because it could also be possible that the little girl has not yet discovered a werewolf yet.
+Having updated their knowledge about the kill overnight, the agents must now vote who to kill during the day. The votings happens iteratively, meaning that the agents vote one after the other. The voting order is shuffled each round so that no bias is introduced by the voting order. After each vote, all the other agents have a chance to update their knowledge. The agents vote for the person with the lowest reliability score. Three different methods updating knowledge have been implemented: vote without higher order knowledge, update using higher order knowledge, and update using dynamic behavior. 
+
+#### Update without using higher order knowledge
+
+Agents don't update their beliefs during the iterative voting. This is because they do not consider what other agents know and vote. Knowledge is only updated after a public announcement. 
+
+#### Update using higher order knowledge
+
+In the scenario where higher order is used to update during the iterative voting, the agents take the votes of other agents in account to update their own beliefs. In this scenario, after an agent votes, all the other agents update their knowledge as follows: if the agent has been voted on, they retaliate with a certain probability. This probability increases throughout the rounds, as we want the agent to acknowledge that they know less in the beginning of the game. If the agent retaliates, it means they know that the other agent knows something about them and wants them out of the game. Therefore, if a villager or little girl retaliates, they update the reliablity of that agent to be the new lowest one. That is, the agent updates the trust in that agent to the minimum trust -1. If the retaliating agent is a werewolf, the reliability is increased to the maxmium +1, so that the werewolf votes for that agent during the night. 
+
+If an agent has not been voted on, the manner in which they update their beliefs is dependent on their class. 
+- For villagers, if agent has voted for the agent they consider to be the little girl, they consider that person to be a werewolf by setting the reliability of that agent to a new minimum. The same is done to the agent that the agent considered as the little girl votes for.
+- For werewolves, if a werewolf votes for an agent, they will consider that agent to be the little girl.
+- The little girl first considers if she has spotted all the werewolves. If she has not spotted all of them, there are multiple options: if the voter is a werewolf, the votee will be considered as a villager and vice-versa. If the little girl knows about neither the voter or the votee if they are a werewolf, she will consider it for the person she trusts the least to be a werewolf. 
+
+#### Dynamic knowledge
+
+We call dynamic knowledge the process of anticipating the outcome of the vote and changing our beliefs and vote to possibly influence it or not. When updating their knowledge dynamically, the agents act as follows: 
+For each cast vote, we have:
+- If the agent is a little girl or a werewolf and have not yet voted but are the target of the vote, the goal is to not stand out. This is because the agents now know that an agent knows something about them. To do this, they keep track of the votes so far, and update to not vote for the predicted winner based on the current votes they have access to. 
+- If the agent is a regular villager and has not voted but are target of the vote or an agent that has already voted, they will retaliate with a probability epsilon, similarly to updating using higher order knowledge.
+- If an agent has not been voted on, they update their current belief using the knowledge introduced by the vote. This done depending on the type of agent, as explained in the update using higher order knowledge section. 
+
 
 After all agents are voted, the votes are counted. If there is a tie, a random choice is performed between the agents with the most votes. Next, another public announcement is made. Namely, that another agent has been killed, and their role. Again, the agents get a chance to update their knowledge based on the public announcement. This is done in a similar fashion as overnight, except this time the killed person can also be a werewolf. The knowledge update procedure is now as follows: 
 - The agents look at the votes that have been performed, and look at who has voted for the killed agent
-- If that agent is a werewolf, they increase their trust in the agents agents who have voted by 4, since they have voted as a villager should have.
+- If that agent is a werewolf , they increase their trust in the agents agents who have voted by 4, since they have voted as a villager should have.
 - However, they voted to kill a villager, the trust in them is decreased by 4
-
 
 This process is then repeated until there are as much villagers are werewolves, or there are no werewolves left. 
 
