@@ -108,7 +108,69 @@ $$
 Of all states $$\|S\| = k$$, there is one state $$s_i$$ which contains the ground truth for all propositions $$P$$.
 
 
+#### Kripke model
+We now define our Kripke model of the game as follows:\\
+$$M ::= \langle S, \pi, R_1, ..., R_m \rangle$$, where:
+  - $$S = \{s_1, s_2, ..., s_k\}$$ is the set of states
+  - $$\pi$$ the truth assigment for all propositions $$P$$ per state $$s_i$$, assigned as described above
+  - $$R_i$$ is the set of relations for an agent $$a_i \in A$$, with relations different for each agent type as described above
+
+
 #### Knowledge
+From the above sections we gather the following notation for knowledge agents can have.
+
+For the werewolves, i.e. for all $$a_i \in W$$:
+  - $$K_i w_j$$ and $$K_i \neg l_j$$ for all $$a_j \in W$$
+  - $$K_i \neg w_j$$ and $$M_i l_j$$ for all $$a_j \in V$$
+
+They consider possible in all states the correct $$w_i$$ for all $$a_i \in A$$ and for all $$a_i \in V$$ consider possible in at least one state $$l_i = t$$.
+
+For the villagers but not the little girl, i.e. for all $$a_i \in V \setminus{L}$$:
+  - $$K_i \neg w_i$$ and $$K_i \neg l_i$$
+  - $$M_i w_j$$ or $$M_i l_j$$ for all $$a_j \in A \setminus{\{a_i\}}$$
+
+They consider possible in all states that they are a villager (therefore, not a werewolf) and not the little girl.
+They consider possible for all other agents in at least one state that that agent is a werewolf or a little girl.
+However, as explained above these are never true for the same agent in the same state.
+
+For the little girl, $$a_i \in L$$:
+  - $$K_i \neg w_i$$ and $$K_i l_i$$
+  - $$K_i \neg l_j$$ and $$M_i w_j$$ for all $$a_j \in A \setminus{\{a_i\}}$$
+
+She considers possible in all states she is a villager and the little girl and for all other agents that they are not the little girl.
+She considers possible for all other agents in at least one state that that agent is a werewolf.
+
+#### Reliability score
+It is clear that with this knowledge, the only agents who can cast votes with some certainty are the werewolves.
+However the werewolves would want to vote on the little girl, therefore they can in fact not vote with certainty.
+We then add another aspect, the reliability scores.
+
+Every agent $$a_i \in A$$ has a set $$Rs_i$$ of reliability scores.
+
+For agents $$a_i \in W$$, $$Rs_i = \{rs_j | a_j \in V\}$$, i.e. the set of reliability scores of a werewolf contains a score for every villager.
+They consider the agent with the highest reliability score $$a_j \in V | r_j = max(Rs_i)$$ to be the little girl.
+We then have a set of relations $$R_i$$ for every $$a_i \in W$$, such that they consider possible for one agent $$a_j \in V$$ in all states that $$l_j = t$$.
+Therefore every time $$max(Rs_i)$$ changes, the werewolf will change their relations such that $$K_i l_j$$ for $$a_j \in V | r_j = max(Rs_i)$$ and $$K_i \neg l_k$$ for all $$a_k \in V \setminus{\{a_j\}}$$.
+
+For agents $$a_i \in V$$, $$Rs_i = \{rs_j | a_j \in A \setminus{\{a_i\}}\}$$, i.e. the set of reliability scores of a villager (including the little girl) contains a score for every agent except themselves.
+They consider the agent with the lowest reliability score $$a_j \in A \setminus{\{a_i\}} | r_j = min(Rs_i)$$ to be a werewolf.
+We then have a set of relations $$R_i$$ for every $$a_i \in V$$, such that they consider possible in all states for one agent $$a_j \in A \setminus{\{a_i\}}$$ that $$w_j = t$$.
+Therefore every time $$min(Rs_i)$$ changes, the villager will change their relations such that $$K_i w_j$$ for $$a_j \in A \setminus{\{a_i\}} | r_j = min(Rs_i)$$.
+It should be noted here that this does not entail the villagers know all other agents to not be werewolves, unless $$n = 1$$.
+So for all $$a_k \in A \setminus{\{a_i, a_j\}}$$, still $$M_i w_k$$.
+
+Additionally the villagers, but not the little girl, $$a_i \in V \setminus{L}$$ consider the agent with the highest reliability score $$a_j \in A \setminus{\{a_i\}} | r_j = max(Rs_i)$$ to be the little girl.
+We then have relations $$R_i$$ for every $$a_i \in V \setminus{L}$$, such that they consider possible in all states for another agent $$a_k \in A \setminus{\{a_i, a_j\}}$$ that $$l_k = t$$.
+Therefore every time $$max(Rs_i)$$ changes, the villager will change their relations such that $$K_i l_j$$ for $$a_j \in V | r_j = max(Rs_i)$$ and $$K_i \neg l_k$$ for all $$a_k \in A \setminus{\{a_j\}}$$.
+Here they know all other agents to not be the little girl, since there is always at most one.
+
+A final addition is that the little girl $$a_i \in L$$ has a probability $$p$$ to spot a werewolf.
+She then has relations $$R_i$$ such that in all states she considers possible for the spotted agent that it is a werewolf.
+She removes the spotted werewolf from the set of reliability scores, iff there are more werewolves than the ones she now consideres possible in all states to be a werewolf she continues to use the reliability scores $$R_i$$ to update knowledge. Otherwise she permanently knows all werewolves and therefore does not need to update her knowledge anymore.
+
+
+
+
 
 
 
