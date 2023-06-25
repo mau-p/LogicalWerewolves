@@ -20,24 +20,15 @@
 </head>
 
 # Logical Werewolves
+Authors: Maurits Merks, Sander Venema, Maarten van der Velde
 
-## The Game
-We initialize the game with $$x$$ werewolves and $$y$$ villagers, therefore
-the total number of agents is $$m=x+y$$. One villager is set to be the
-little girl, who can see the werewolves with a probability $$p_{sw}$$.
-Additionally, every agent $$a$$ has a reliability score $$r_a$$. The game
-has two phases: the day and night phase. The phases follow each other
-consecutively, starting from the night phase. The game ends when the number of werewolves becomes equal to the number of villagers, or when the villagers have voted away all werewolves.
+## Introduction
+The Werewolves of Miller's Hollow is a popular social deduction game that challenges a player's ability to deceive other players, as well as deduce their role based on their actions and communication. The game consists of two factions: werewolves and villagers. The goal of these factions is to outmaneuver and eliminate members of the opposing faction in a battle for control over the village. Werewolves know each other, and can vote to eliminate a villager each night. Villagers on the other hand do not know who the other villagers or werewolves are. Each day, everyone can vote together on who to eliminate. Once an agent has been killed it is announced what the role of the agent was, and then everybody can draw their conclusions. 
 
-### Night phase
-During the night phase, the werewolfs vote which villager they should kill. Voting happens based on the beliefs that each werewolf has in the sense that they always vote for the agent they deem the most reliable. The little girl can spot the werewolfs during the night, and additionally the werewolves can spot the little girl peeking during the night. 
+Since the game revolves about gathering and deducing information, it is nicely suited for a formalization using higher-order logic. In this project, we simulate knowledge in order to play a simplified Werewolves of Miller's Hollow game. Multiple experiments are run and formally represented, offering a view into multiple ways for the agent to use knowledge to play the game. 
 
-### Day phase
-During the day phase all agents vote on an agent to vote off. Each werewolf will vote for the villager that has the highest reliability score in their own beliefs. Villagers and the little girl will always vote for the agent with the lowest reliability score in their own beliefs.
-
-| ![flowchart](assets/images/flowchart.png) |
-|:--:|
-| Figure 1: a flowchart of the game The Werewolves of Millers Hollow |
+## Simplifications
+The real game has multiple roles like the mayor, the hunter or the witch. Due to the complexity in implementing the knowledge updates for all the roles, we have chosen to reduce the game to simply three roles: werewolves, villagers and the little girl. The little girl was chosen specifically because she has the ability to peek during the night and discover who the werewolves are. This is an interesting property as it allows to introduce additional knowledge in the game, since the villagers have no way of truly knowing who the werewolves are until they are dead. By adding the little girl, villagers know that someone knows something about the werewolves, which makes the game more interesting. 
 
 ## Agents
 The basic agent is initialized with the following items:
