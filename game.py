@@ -78,19 +78,24 @@ class Game:
                 if ((reward < 0) and voter_is_villager) or ((reward > 0) and voter_is_werewolf):
                     # Correct choice for agent role
                     choice = 'VILLAGER' if voter_is_werewolf else 'WEREWOLF'
-                    correct = 'CORRECT'
-                    self.correct_updates += self.n_agents
+                    correct = True
                 
                 else:
                     # Incorrect choice for agent role
                     choice = 'VILLAGER' if voter_is_villager else 'WEREWOLF'
-                    correct = 'INCORRECT'
-                    self.incorrect_updates += self.n_agents
+                    correct = False
 
                 for agent in self.all_agents:
                     if agent == voter:
                         agent.memory[choice] += 1
-                    elif isinstance(agent, agent_class.Werewolf) and voter_is_villager:
+                        continue
+
+                    if correct:
+                        self.correct_updates += 1
+                    else:
+                        self.incorrect_updates += 1
+                    
+                    if isinstance(agent, agent_class.Werewolf) and voter_is_villager:
                         # print(f'agent {agent.id} updates beliefs about {voter} by {-reward}. This is {correct}')
                         agent.beliefs[voter_id] -= reward
                     elif isinstance(agent, agent_class.Villager) and not isinstance(agent, agent_class.LittleGirl):
