@@ -180,10 +180,13 @@ Lastly, we recorded the average game length with an increasing number of werewol
 ### Winrate
 In the winrate, we clearly observe that the agents with higher-order knowledge perform better than the agents without higher-order knowledge. For a lower number of werewolves, the winrate is always about 2 to 3 times the winrate of the agents that do not use higher-order knowledge. This is a good example of why it is useful for the agents to know what order agents voted for, and what this means for their reliability. The agents clearly make good use of this knowledge to win the game. However, the use of dynamic behaviour did not seem to have any effect on the winrate.
 
+### Knowledge updates
 In the average rate of correct knowledge updates, we also see the benefit of using higher-order knowledge. Clearly, the agents that use higher-order knowledge make use of this knowledge to quickly and more efficiently update their beliefs about other agents. This is reflected in the generally higher correct score as the number of werewolves increases. However, the use of dynamic behaviour did not seem to have any effect on the average rate of correct knowledge updates.
 
+### Round length
 Lastly, in the average round length we again see the benefit of using higher-order knowledge. As is also represented in the winrate of these agents, the rounds are much shorter for a lower number of werewolves when agents use higher-order knowledge. It is clear that the agents already make use of their higher-order knowledge about other agents such that they can already vote out the werewolves in an early stage. For a higher number of werewolves, the difference disappears more or less. Again, the use of dynamic behaviour did not seem to have any effect on the average round length of the games.
 
+### Overall
 Interestingly enough, as the number of werewolves increases, the agents that do not use higher-order knowledge seem to outperform the agents that do use higher-order knowledge when it comes to winrate and rate of correct knowledge updates. This may be the result of a sort of 'overfitting' that the higher-order knowledge agents develop as the number of werewolves increases.
 
 Lastly, despite our efforts to include a form of dynamic behaviour into the agents, there seems to be no observable difference in the outcomes of the experiments. It could for future research be investigated what parameters could make a difference here, and whether dynamic behaviour could possibly be augmented to overcome the overfitting effect that higher-order knowledge agents seem to have with a high number of werewolves.
