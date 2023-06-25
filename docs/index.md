@@ -30,66 +30,89 @@ Since the game revolves about gathering and deducing information, it is nicely s
 ## Simplifications
 The real game has multiple roles like the mayor, the hunter or the witch. Due to the complexity in implementing the knowledge updates for all the roles, we have chosen to reduce the game to simply three roles: werewolves, villagers and the little girl. The little girl was chosen specifically because she has the ability to peek during the night and discover who the werewolves are. This is an interesting property as it allows to introduce additional knowledge in the game, since the villagers have no way of truly knowing who the werewolves are until they are dead. By adding the little girl, villagers know that someone knows something about the werewolves, which makes the game more interesting. 
 
-## Agents
-The basic agent is initialized with the following items:
-- A unique ID to identify the agent
-- The total number of agents $$m$$
-- The beliefs of the agent $$B_m$$
-
-Additionally, each agent has access to a set of custom methods
-- create_beliefs: generates a list with random beliefs of size $$m$$ about the other agents. Reliability of other agents is randomly generated where reliability score $$r_m \in [-1, 0, 1]$$.
-- tie_argmin: takes as input a dictionary of beliefs, returns the ID of the agent with the lowest reliability score for agent $$m$$. In case of ties, returns a random ID from the list of lowest reliability scores. 
-- tie_argmax: takes as input a dictionary of beliefs, returns the ID of the agent with the highest reliability score for agent $$m$$. In case of ties, returns a random ID from the list of highest reliability scores.
-
-### Werewolf
-A werewolf agent inherits from the basic agent, and has the following additions:
-- Sets the beliefs about itself to $$-1000000$$ to avoid suicide or self-voting
-- A vote method that returns the value from tie_argmax
-
-### Villager
-A villager agent inherits from the basic agent, and has the following additions:
-- Sets the beliefs about itself to $$+1000000$$ to avoid self-voting
-- A vote method that returns the value from tie_argmin
-
-### Little girl
-A little girl agent inherits from the basic agent, and has the following additions:
-- Sets the beliefs about itself to $$+1000000$$ to avoid self-voting
-- A discovery probability $$p_{sw}$$ that regulates the chance that the little girl spots a werewolf during the night
-- A vote method that returns the value from tie_argmin
-- A look_overnight method that allows the little girl to peak at the werewolves during the night with the discovery probability. If the little girl spots a werewolf, the beliefs about this werewolf are set to $$-100000$$ such that the girl will always vote for this werewolf after spotting them
-
 ## Formal model
-The formal model of our simulation is as follows:
- - a set of $$m$$ agents $$A =$$ \{ $$a_1, a_2, ..., a_m$$ \}.
- - a set of $$x$$ werewolves, $$W \subset A$$, $$|W| = x$$.
- - a set of $$y$$ villagers, $$V \subset A$$, $$|V| = y$$.
- - a singleton set for the little girl, $$L \subset V$$, $$|L| = 1$$.
- - a set of propositions $$P =$$ \{ $$w_1, w_2, ..., w_m, l_1, l_2, ..., l_m$$ \}, where:
-    - $$w_i = t$$ iff $$a_i \in W$$
-    - $$l_i = t$$ iff $$a_i \in L$$
- - sets $$W$$ and $$V$$ are mutually exclusive, $$W \cap V = \emptyset$$,\
- hence for some $$a_i \in A$$, iff $$w_i = f$$ then $$a_i \in V$$
- - a set of reliability scores $$Rs =$$ \{ $$r_1, r_2, ..., r_m$$ \}.
+As mentioned in the introduction, the game of werewolves exists of two groups: werewolves and villagers.
+In the group of villagers there is one member who is the little girl.
+We define this as follows: we have a game with $$m$$ agents, of which $$n$$ werewolves and $$m-n$$ villagers of which 1 is the little girl.
 
-After every phase, the agent $$a_i$$ that was killed or voted off is removed from $$A$$.\
-Then a truthful public announcement is done about $$w_i$$ and $$l_i$$ and the reliablity scores $$Rs$$ are updated according to $$w_i$$.\
-All $$a_j \in A$$ that voted to remove $$a_i$$ get $$r_j = r_j + 1$$ if $$w_j = t$$, and $$r_j = r_j - 1$$ if $$w_j = f$$.
+### Agents
+We can formalize these groups of agents as follows:
+  - the set of all agents $$A = \{a_1, a_2, ..., a_m\}$$
+  - the set of werewolves $$W = \{a_1, a_2, ..., a_n\}$$
+  - the set of villagers $$V = \{a_{n+1}, a_{n+2}, ..., a_m\}$$
+  - the set for the little girl $$L = \{a_{m}\}$$
 
-In all states:
- - every $$a_i \in W$$ knows $$w_j$$ for all $$a_j \in A$$.
- - every $$a_i \in L$$ knows $$l_j$$ for all $$a_j \in A$$.
+The sets satisfy the following properties:
+  - $$W \cup V = A$$
+  - $$W \cap V = \emptyset$$
+  - $$L \subset V$$
+  - $$|L| = 1$$
+  - $$|W| = n$$
+  - $$|V| = m-n$$
+  - $$|A| = m$$
 
-In at least one state:
- - every $$a_i \in L$$ knows $$w_j$$ for all $$a_j \in A$$.
- - iff not $$L=\emptyset$$, every $$a_i \in W$$ considers possible $$l_j$$ for $$a_j \in A$$ with $$max(Rs)$$
- - every $$a_i \in V \setminus{L}$$ considers possible $$w_j$$ for $$a_j \in A$$ with $$min(Rs)$$
+In other words: the set of werewolves and set of villagers together form the set of all agents $$A$$ and are mutually exclusive.
+The set for the little girl is a singleton set and is a subset of the set of villagers. And the sizes for each set are as defined above.
 
-Our Kripke model is defined as follows:
-$$M ::= \langle S, \pi, R_1, ..., R_m \rangle$$, with:
- - $$S = $$tbd
- - $$\pi (s_i)(w_j) = t$$ iff $$a_j \in W$$
- - $$\pi (s_i)(l_j) = t$$ iff $$a_j \in L$$
- - $$R = $$tbd
+### Model
+
+#### Propositions
+To construct a proper model of the game, we need to define propositions such that these propositions express what an agent can know about other agents.
+We know an agent can be a werewolf or villager and if they are a villager they can be a little girl.
+We then arrive at the propositions:
+  - $$w_i$$, true if an agent $$i$$ is a werewolf
+  - $$l_i$$, true if an agent $$i$$ is the little girl
+
+It is then clear that for some agent $$i$$,
+$$w_i = t$$ iff $$a_i \in W$$,
+$$w_i = f$$ iff $$a_i \in V$$
+and $$l_i = t$$ iff $$a_i \in L$$.
+
+From this it follows that for all $$a_i \in A$$ it is never the case that $$w_i = t$$ and $$l_i = t$$, a werewolf is never also the little girl.
+There also is only one agent $$a_i \in A$$ for whom $$w_i = f$$ while $$l_i = t$$, since there is only one villager who is the little girl.
+We then have propositions $$P = \{w_1, w_2, ..., w_m, l_1, l_2, ..., l_m\}$$.
+
+#### States
+We can now define the states of our model. 
+Every state $$s_i$$ consists of all propositions $$P$$ and their truth assignments.
+Given $$m$$ agents, of which $$n$$ are werewolves, we then have for some state $$s_i$$:
+  - $$w_i = t$$ for $$n$$ agents $$a_i \in A$$
+  - $$w_i = f$$ for $$m-n$$ agents $$a_i \in A$$
+  - $$l_i = t$$ for 1 agent $$a_i \in A$$ iff $$w_i = f$$
+  - $$l_i = f$$ for $$m-1$$ agents $$a_i \in A$$
+
+For ease of notation we also define the number of villagers as $$v = m-n$$.
+The total number of possible states $$k$$ is then: 
+$$ k = v * \frac{\prod_{i=0}^{n-1}(m-i)}{n}
+$$
+
+Here the fraction represents the number of possible combinations of werewolves, which is multiplied by the number of possible combinations for the little girl which is simply the number of villagers.
+Not all agents have access to all states however. 
+The werewolves know all other werewolves, those $$a_i \in A$$ for which $$w_i = t$$ and hence also $$l_i = f$$.
+It follows that they also know all $$a_i \in A$$ for which $$w_i = f$$.
+This means that the werewolves know all other agents that are not werewolves to be villagers, but they do not know the little girl.
+The the number of states the werewolves can reach, i.e. the number of relations for each $$a_i \in W$$, is then:
+$$ r_w = v $$
+
+The villagers (not the little girl) only know for one $$a_i \in A$$, namely themselves, that $$w_i = f$$ and $$l_i = f$$.
+The number of relations they have is then:
+$$ r_v = (v-1) * \frac{\prod_{i=0}^{n-1}(m-i-1)}{n}
+$$
+
+Lastly the little girl $$a_i \in A$$ knows for all other agents $$a_j \in A \setminus{a_i}$$ that they are not the little girl, but she does not (yet) know if they are werewolves or villagers.
+Therefore she knows for all $$a_j \in A \setminus{a_i}$$ that $$l_j = f$$, but she does not know if $$w_j = t$$ or $$w_j = f$$.
+The number of relations she has is then:
+$$ r_l = \frac{\prod_{i=0}^{n-1}(m-i-1)}{n}
+$$
+
+Of all states $$|S| = k$$, there is one state $$s_i$$ which contains the ground truth for all propositions $$P$$.
+
+
+#### Knowledge
+From the above states 
+
+
+
 
 ## Implementation Details
 
