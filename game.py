@@ -4,7 +4,7 @@ import random
 import ascii_art
 
 class Game:
-    def __init__(self, knowledge_order, number_werewolves, number_villagers):
+    def __init__(self, number_werewolves, number_villagers, higher_order=False):
         self.number_werewolves = number_werewolves
         self.number_villagers = number_villagers
         self.n_agents = self.number_werewolves + self.number_villagers +1
@@ -16,7 +16,7 @@ class Game:
         self.votes = {}
         self.first = True
         self.round = 0
-        self.knowledge_order = knowledge_order
+        self.higer_order = higher_order
         self.correct_updates = 0
         self.incorrect_updates = 0
 
@@ -60,24 +60,33 @@ class Game:
 
         # print(f'Original kill: {kill}')
         # print(f'Votes: {votes}')
-        for voter, voted in votes.items():
+        for voter_id, voted in votes.items():
             if voted in target:
-                voter = self.get_agent(voter)
+                voter = self.get_agent(voter_id)
+                if voter is None:
+                    continue
+
+                voter_is_werewolf = isinstance(voter, agent_class.Werewolf)
+                voter_is_villager = isinstance(voter, agent_class.Villager)
+
+                if ((reward < 0) and voter_is_villager) or ((reward > 0) and voter_is_werewolf):
+                    # Correct choice for agent role
+                    choice = 'VILLAGER' if voter_is_werewolf else 'WEREWOLF'
+                    correct = 'CORRECT'
+                    self.correct_updates += self.n_agents
+                
+                else:
+                    # Incorrect choice for agent role
+                    choice = 'VILLAGER' if voter_is_villager else 'WEREWOLF'
+                    correct = 'INCORRECT'
+                    self.incorrect_updates += self.n_agents
+
                 for agent in self.all_agents:
                     if agent == voter:
-                        continue
-
-                    if voter in self.all_agents:
-                        if ((reward < 0) and isinstance(voter, agent_class.Villager)) \
-                            or ((reward > 0) and isinstance(voter, agent_class.Werewolf)):
-                            correct = 'CORRECT'
-                            self.correct_updates += 1
-                        else:
-                            correct = 'INCORRECT'
-                            self.incorrect_updates += 1
-                        
+                        agent.memory[choice] += 1
+                    else:
                         # print(f'agent {agent.id} updates beliefs about {voter} by {-reward}. This is {correct}')
-                        agent.beliefs[voter.id] -= reward
+                        agent.beliefs[voter_id] -= reward
 
 
 
@@ -150,15 +159,68 @@ class Game:
             votes_count[votee] += 1
 
             for viewer in vote_cycle:
-                if viewer != voter:
-                    trust_votee = viewer.beliefs[votee]
-                    trust_voter = viewer.beliefs[voter.id]
+                if viewer == voter:
+                    continue
+                elif self.higer_order and viewer.id == votee:
+                    if viewer.memory['VILLAGER'] > viewer.memory['WEREWOLF']:
+                        # votee thinks that voter thinks they are a werewolf (they voted more for villagers)
+                        # TODO: adjust behavior
+                        pass
+                    elif viewer.memory['WEREWOLF'] > viewer.memory['VILLAGER']:
+                        # votee thinks that voter thinks they are a little girl (they voted more for werewolves)
+                        # TODO: adjust behavior
+                        pass
+                else:
+                    # if viewer is werewolf
+                    if isinstance(viewer, agent_class.Werewolf):
+                        bug_check = False
+                        # If votee is werewolf
+                        if isinstance(votee, agent_class.Werewolf):
+                            bug_check = True
+                            # viewer will consider voter a little girl (can be tied)
+                            viewer.beliefs[voter.id] = max(viewer.beliefs.values())
+                        # If voter is werewolf
+                        if isinstance(voter, agent_class.Werewolf):
+                            if bug_check: print(f"Tomfoolery going on")
+                            # Viewer will consider votee a little girl (can be tied)
+                            viewer.beliefs[votee] = max(viewer.beliefs.values())
 
-                    if trust_votee > trust_voter:
-                        viewer.beliefs[voter.id] -= 3
-                    
-                    if trust_votee < trust_voter:
-                        viewer.beliefs[votee] -= 3
+                    # if viewer is villager but not little girl
+                    if isinstance(viewer, agent_class.Villager) and not isinstance(viewer, agent_class.LittleGirl):
+                        # if viewer considers votee little girl, voter will be considered a werewolf
+                        if viewer.beliefs[votee] == max(viewer.beliefs.values()):
+                            viewer.beliefs[voter.id] = min(viewer.beliefs.values()) - 1
+                        # if viewer considers voter little girl, votee will be considered werewolf (tied if multiple)
+                        elif viewer.beliefs[voter.id] == max(viewer.beliefs.values()):
+                            viewer.beliefs[votee] = min(viewer.beliefs.values())
+
+                    # if viewer is little girl
+                    if isinstance(viewer, agent_class.LittleGirl):
+                        num_spotted = 0
+                        lowest_trust = min(viewer.beliefs.values())
+                        # little girl has spotted a werewolf
+                        if lowest_trust == -100000:
+                            num_spotted = list(viewer.beliefs.values()).count(lowest_trust)
+                        # little girl has not spotted all werewolves
+                        if self.number_werewolves > num_spotted:
+                            # There is another werewolf but we cannot gain knowledge about who it is
+                            if viewer.beliefs[voter.id] == lowest_trust and viewer.beliefs[votee] == lowest_trust:
+                                continue
+                            # if viewer knows voter is werewolf, votee will be considered possible to be a villager
+                            elif viewer.beliefs[voter.id] == lowest_trust:
+                                viewer.beliefs[votee] += 1
+                            # if viewer knows votee is werewolf, voter will be considered possible to be a villager
+                            elif viewer.beliefs[votee] == lowest_trust:
+                                viewer.beliefs[voter.id] += 1
+                            
+                            # voter and votee are not spotted werewolves
+                            # if viewer trusts votee more than voter, voter will be considered possible to be a werewolf
+                            elif viewer.beliefs[votee] > viewer.beliefs[voter.id]:
+                                viewer.beliefs[voter.id] -= 1
+                            # if viewer trusts voter more than votee, votee will be considered possible to be a werewolf
+                            elif viewer.beliefs[voter.id] > viewer.beliefs[votee]:
+                                viewer.beliefs[votee] -= 1
+        
 
         # Determine person with most votes. If tie, choose randomly
         max_votes = max(votes_count.values())
