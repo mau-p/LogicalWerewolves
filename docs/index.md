@@ -168,8 +168,21 @@ A final addition is that the little girl $$a_i \in L$$ has a probability $$p$$ t
 She then has relations $$R_i$$ such that in all states she considers possible for the spotted agent that it is a werewolf.
 She removes the spotted werewolf from the set of reliability scores, iff there are more werewolves than the ones she now consideres possible in all states to be a werewolf she continues to use the reliability scores $$R_i$$ to update knowledge. Otherwise she permanently knows all werewolves and therefore does not need to update her knowledge anymore.
 
+#### Public announcement
+Once an agent gets killed or voted off, with their last breath they make a truthful public announcement about their role.
+With this announcement, all other agents then update their knowledge to include this information, such that the public announcement is common knowledge.
+Therefore agents change their relations such that for the announced $$w_i$$ and $$l_j$$, they consider possible in all states the correct truth assignment for these propositions.
+The exact details will be explained further in the implemenation.
 
 
+#### Higher order knowledge
+In the base model, agents only know the truth assignment of the propositions $$w_i$$ and $$l_j$$.
+However, using the reliability scores, an agent can gain knowledge about the knowledge of other agents.
+The agent for which they have the maximum reliability score, they consider to be the little girl.
+And the agent for which they have the minimum reliability score, they consider to be a werewolf.
+The higher order knowledge is then such that once votes are cast, they consider possible in all states:
+  - the agent with maximum reliability score considers possible in all states their cast to be a werewolf
+  - the agent with the minimum reliability score considers possible in all states their cast to be the little girl
 
 
 
