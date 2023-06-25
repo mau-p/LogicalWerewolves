@@ -19,7 +19,7 @@ class Game:
         self.votes = {}
         self.first = True
         self.round = 0
-        self.higer_order = higher_order
+        self.higher_order = higher_order
         self.dynamic_behavior = dynamic_behavior
         self.correct_updates = 0
         self.incorrect_updates = 0
@@ -172,7 +172,7 @@ class Game:
             self.votes[voter.id] = votee
             votes_count[votee] += 1
 
-            if self.higer_order:
+            if self.higher_order:
                 # Agents can have knowledge of other agents' beliefs
                 if self.round > 0:
                     epsilon *= self.round

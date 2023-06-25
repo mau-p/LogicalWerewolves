@@ -4,10 +4,8 @@ import pandas as pd
 from tqdm import tqdm
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
     true_false = [False, True]
     total_agents = 20
-    args = parser.parse_args()
     n_games = 500
     stats = pd.DataFrame(columns=['higher_order', 'dynamic_behavior', 'n_werewolves', 'winrate', 'correct_score', 'num_rounds'])
     stats['higher_order'] = stats['higher_order'].astype(bool)
