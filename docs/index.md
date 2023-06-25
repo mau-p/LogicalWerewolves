@@ -27,7 +27,7 @@ the total number of agents is $$m=x+y$$. One villager is set to be the
 little girl, who can see the werewolves with a probability $$p_{sw}$$.
 Additionally, every agent $$a$$ has a reliability score $$r_a$$. The game
 has two phases: the day and night phase. The phases follow each other
-consecutively, starting from the night phase. The game ends when the amount of werewolves becomes equal to the amount of villagers, or when the villagers have voted away all werewolves.
+consecutively, starting from the night phase. The game ends when the number of werewolves becomes equal to the number of villagers, or when the villagers have voted away all werewolves.
 
 ### Night phase
 During the night phase, the werewolfs vote which villager they should kill. Voting happens based on the beliefs that each werewolf has in the sense that they always vote for the agent they deem the most reliable. The little girl can spot the werewolfs during the night, and additionally the werewolves can spot the little girl peeking during the night. 
@@ -144,4 +144,46 @@ After all agents are voted, the votes are counted. If there is a tie, a random c
 
 This process is then repeated until there are as much villagers are werewolves, or there are no werewolves left. 
 
+## Experiment
+To assess the behaviour of our agents, we implemented several different experiments. The following variables were controlled during these experiments:
+- The number of werewolves (1-9);
+- The total number of agents (20);
+- Whether higher-order knowledge was used;
+- Whether dynamic behaviour was used.
 
+The total number of agents was set to 20 to achieve a simple yet representatively large setup. The number of villagers was determined by the total number of agents - the number of werewolves - 1 to account for the little girl. The maximum number of werewolves was set to half of the total number of agents. This was decided since in our implementation the werewolves automatically win once they outnumber the villagers, since at this point the werewolves can win by both voting during the day and killing at night.
+
+For each individual experiment, 500 games were run to obtain representative results. The setup was executed with and without higher-order knowledge. Moreover, we tested combinations of higher-order knowledge with and without dynamic behaviour. Each of these configurations was then evaluated with an increasing number of werewolves to analyze the impact of werewolf quantity on the behaviour of our agents.
+
+Specifically, the behavioural statistics that we keep track of are the average winrate of the villagers, the average rate of correct knowledge updates and the average length of the games that were played. Since there were in total 27 settings that we compared, the total number of games played is 13500.
+
+## Results
+The first statistic we recorded is the average winrate that the agents obtained with an increasing number of werewolves. The results can be seen in figure 2 below. The first feature that can be observed is that the winrate with no higher-order knowledge starts low at around 0.4 with one werewolf, increases slightly to around 0.7 for six werewolves, and then quickly goes down as the number of werewolves approaches 9. With higher-order knowledge enabled, the winrate starts much higher, and goes down more smoothly as the number of werewolves increases. This is also the case for the setting with dynamic behaviour enabled.
+
+| ![winrate](assets/images/winrate.png) |
+|:--:|
+| Figure 2: the average winrate of the agents as the number of werewolves increases.|
+
+The second statistic we recorded is the average rate of correct knowledge updates for the agents with an increasing number of werewolves. The results can be seen in figure 3 below. The main observation here is that the rate of correct knowledge updates follows more ore less the same path, but that for higher-order knowledge, the rate of correct knowledge update increases much earlier. Again, this is also the case for the setting with dynamic behaviour enabled.
+
+| ![correct_score](assets/images/correct_score.png) |
+|:--:|
+| Figure 3: the average rate of correct knowledge updates for the agents as the number of werewolves increases.|
+
+Lastly, we recorded the average game length with an increasing number of werewolves. The results can be seen in figure 4 below. First we see that the average number of rounds per game is initially much lower with higher-order knowledge enabled. This can also be reflected by the average winrate from figure 2. From around 5 werewolves, however, the number of rounds seems to follow about the same path down for both the settings with and without higher-order knowledge. Again, this is also the case for the setting with dynamic behaviour enabled.
+
+| ![round_length](assets/images/n_rounds.png) |
+|:--:|
+| Figure 4: the average length of the rounds as the number of werewolves increases.|
+
+## Discussion
+### Winrate
+In the winrate, we clearly observe that the agents with higher-order knowledge perform better than the agents without higher-order knowledge. For a lower number of werewolves, the winrate is always about 2 to 3 times the winrate of the agents that do not use higher-order knowledge. This is a good example of why it is useful for the agents to know what order agents voted for, and what this means for their reliability. The agents clearly make good use of this knowledge to win the game. However, the use of dynamic behaviour did not seem to have any effect on the winrate.
+
+In the average rate of correct knowledge updates, we also see the benefit of using higher-order knowledge. Clearly, the agents that use higher-order knowledge make use of this knowledge to quickly and more efficiently update their beliefs about other agents. This is reflected in the generally higher correct score as the number of werewolves increases. However, the use of dynamic behaviour did not seem to have any effect on the average rate of correct knowledge updates.
+
+Lastly, in the average round length we again see the benefit of using higher-order knowledge. As is also represented in the winrate of these agents, the rounds are much shorter for a lower number of werewolves when agents use higher-order knowledge. It is clear that the agents already make use of their higher-order knowledge about other agents such that they can already vote out the werewolves in an early stage. For a higher number of werewolves, the difference disappears more or less. Again, the use of dynamic behaviour did not seem to have any effect on the average round length of the games.
+
+Interestingly enough, as the number of werewolves increases, the agents that do not use higher-order knowledge seem to outperform the agents that do use higher-order knowledge when it comes to winrate and rate of correct knowledge updates. This may be the result of a sort of 'overfitting' that the higher-order knowledge agents develop as the number of werewolves increases.
+
+Lastly, despite our efforts to include a form of dynamic behaviour into the agents, there seems to be no observable difference in the outcomes of the experiments. It could for future research be investigated what parameters could make a difference here, and whether dynamic behaviour could possibly be augmented to overcome the overfitting effect that higher-order knowledge agents seem to have with a high number of werewolves.
