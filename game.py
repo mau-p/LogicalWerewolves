@@ -162,18 +162,13 @@ class Game:
             votes_count[agent.id] = 0
 
         
-        """
-        The agents vote iteratively. If they trust the person casting a vote more than the
-        subject of the vote the agents will trust the subject less. The inverse is also true. 
-        """
         for voter in vote_cycle:
             votee = voter.vote()
             self.votes[voter.id] = votee
             votes_count[votee] += 1
 
-
-            # Agents can have knowledge of other agents' beliefs
             if self.higer_order:
+                # Agents can have knowledge of other agents' beliefs
                 if self.round > 0:
                     epsilon *= self.round
                     if epsilon > 1:
@@ -181,65 +176,32 @@ class Game:
                 for viewer in vote_cycle:
                     if viewer == voter:
                         continue
-                    elif viewer.id == votee:
-                        if not self.dynamic_behavior and random.random() < epsilon:
-                            # retaliate with epsilon greedy (higher chance in later rounds)
-                            if isinstance(viewer, agent_class.Werewolf):
-                                viewer.beliefs[voter.id] = max(viewer.beliefs.values())+1
-                            if not isinstance(viewer, agent_class.LittleGirl):
-                                viewer.beliefs[voter.id] = min(viewer.beliefs.values())-1
-                        
-                        elif self.dynamic_behavior:
-                            max_votes = max(votes_count.values())
-                            if self.round == 0 or max_votes == 1:
-                                cur_kicks = [k for k,v in votes_count.items() if v == max(votes_count.values())]
-                            else:
-                                cur_kicks = [k for k,v in votes_count.items() if v >= max(votes_count.values())-1]
+                    viewer_has_voted = viewer.id in self.votes
+                    
+                    if viewer.id == votee and self.dynamic_behavior:
+                        max_votes = max(votes_count.values())
+                        # Get the agents that currently have the most votes, get the agents with second most votes as well if round>0 and max_votes>1
+                        if self.round == 0 or max_votes == 1:
+                            cur_kicks = [k for k,v in votes_count.items() if v == max(votes_count.values())]
+                        else:
+                            cur_kicks = [k for k,v in votes_count.items() if v >= max(votes_count.values())-1]
 
-                            if isinstance(viewer, agent_class.LittleGirl) and viewer.memory['WEREWOLF'] > viewer.memory['VILLAGER']:
-                                # viewer is votee and little girl and knows the voter knows this
-                                if viewer.id not in self.votes:
-                                    # Adjust belief such that little girl will not vote for suspect if it will then have highest number of votes
-                                    if viewer.known_werewolves:
-                                        known = [werewolf for werewolf in viewer.known_werewolves]
-                                        for werewolf in known:
-                                            if werewolf not in cur_kicks and werewolf in viewer.dont_vote:
-                                                viewer.dont_vote.remove(werewolf)
-                                            if werewolf in cur_kicks:
-                                                viewer.dont_vote.add(werewolf)
-                                    if not viewer.known_werewolves - viewer.dont_vote:
-                                        in_danger = True
-                                        while in_danger:
-                                            suspects = [k for k,v in viewer.beliefs.items() if v == min(viewer.beliefs.values())]
-                                            for agent in suspects:
-                                                if agent not in cur_kicks:
-                                                    viewer.beliefs[agent] -= 1
-                                                    in_danger = False
-                                                elif agent in cur_kicks:
-                                                    viewer.beliefs[agent] += 1
+                        if (isinstance(viewer, agent_class.LittleGirl) and viewer.memory['WEREWOLF'] > viewer.memory['VILLAGER'])\
+                            or (isinstance(viewer, agent_class.Werewolf) and viewer.memory['VILLAGER'] > viewer.memory['WEREWOLF'])\
+                            and not viewer_has_voted:
+                            # If agent is little girl and knows the voter knows this or if agent is werewolf and knows the voter knows this
+                            # adjust the reliability scores to not stand out
+                            viewer.dynamic(current_top_vote=cur_kicks)
 
-                                elif random.random() < epsilon:
-                                    # already voted but wants to retaliate next round with epsilon greedy
-                                    viewer.beliefs[voter.id] = min(viewer.beliefs.values())-1
-                            
-                            if isinstance(viewer, agent_class.Werewolf) and viewer.memory['VILLAGER'] > viewer.memory['WEREWOLF']:
-                                # viewer is votee and werewolf and knows the voter knows this
-                                if viewer.id not in self.votes:
-                                    # must ensure they do not vote for agent that will then be (one of) the cur_kicks
-                                    in_danger = True
-                                    while in_danger:
-                                        potential_vote = [k for k,v in viewer.beliefs.items() if v == max(viewer.beliefs.values())]
-                                        for agent in potential_vote:
-                                            if agent not in cur_kicks:
-                                                viewer.beliefs[agent] += 1
-                                                in_danger = False
-                                            elif agent in cur_kicks:
-                                                # agent could be voted off if voted on
-                                                viewer.beliefs[agent] -= 1
-                                elif random.random() < epsilon:
-                                    # already voted but wants to retaliate next round with epsilon greedy
-                                    viewer.beliefs[voter.id] = max(viewer.beliefs.values())+1
-                            
+                        elif (isinstance(viewer, agent_class.Villager) or viewer_has_voted) and random.random() < epsilon:
+                            # Villagers always try to retaliate with epsilon greedy, as well as all agents that have already voted
+                            viewer.retaliate(voter.id)
+                    
+                    elif viewer.id == votee and not self.dynamic_behavior:
+                        # If agent is the votee, try to retaliate with epsilon greedy
+                        if random.random() < epsilon:
+                            viewer.retaliate(voter.id)
+
                     else:
                         viewer.update_beliefs(voter.id, votee, self.number_werewolves)
         
