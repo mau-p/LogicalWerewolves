@@ -109,8 +109,6 @@ Of all states $$\|S\| = k$$, there is one state $$s_i$$ which contains the groun
 
 
 #### Knowledge
-From the above states 
-
 
 
 
