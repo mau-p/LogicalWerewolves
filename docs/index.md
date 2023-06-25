@@ -46,10 +46,10 @@ The sets satisfy the following properties:
   - $$W \cup V = A$$
   - $$W \cap V = \emptyset$$
   - $$L \subset V$$
-  - $$|L| = 1$$
-  - $$|W| = n$$
-  - $$|V| = m-n$$
-  - $$|A| = m$$
+  - $$\|L\| = 1$$
+  - $$\|W\| = n$$
+  - $$\|V\| = m-n$$
+  - $$\|A\| = m$$
 
 In other words: the set of werewolves and set of villagers together form the set of all agents $$A$$ and are mutually exclusive.
 The set for the little girl is a singleton set and is a subset of the set of villagers. And the sizes for each set are as defined above.
@@ -105,7 +105,7 @@ The number of relations she has is then:
 $$ r_l = \frac{\prod_{i=0}^{n-1}(m-i-1)}{n}
 $$
 
-Of all states $$|S| = k$$, there is one state $$s_i$$ which contains the ground truth for all propositions $$P$$.
+Of all states $$\|S\| = k$$, there is one state $$s_i$$ which contains the ground truth for all propositions $$P$$.
 
 
 #### Knowledge
