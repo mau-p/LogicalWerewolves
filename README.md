@@ -13,3 +13,9 @@ python3 main.py <higher_order> <dynamic_behavior> <n_werewolves> <n_villagers>
 ```
 
 Running this will run the game 500 times and return the average winrate, correct score and number of rounds.
+
+Additionally, to run a single game:
+
+```
+python3 main_demo.py <higher_order> <dynamic_behavior> <n_werewolves> <n_villagers>
+```

@@ -23,3 +23,4 @@ if __name__ == "__main__":
         correct_score += correct_score_single
         num_rounds += num_rounds_single
     print(f'higher_order: {args.higher_order}, dynamic_behavior: {args.dynamic_behavior}, n_werewolves: {args.n_werewolves}, n_villagers: {args.n_villagers}, winrate: {winrate/n_games}, correct_score: {correct_score/n_games}, num_rounds: {num_rounds/n_games}')
+    

@@ -30,7 +30,6 @@ class Agent:
     def reset_iteration():
         Agent.id_iter = itertools.count(0)
 
-
 class Werewolf(Agent):
     def __init__(self, n_agents):
         super().__init__(n_agents)
@@ -71,7 +70,6 @@ class Werewolf(Agent):
                     # Agent could be voted off if voted on
                     self.beliefs[agent] -= 1
 
-
 class Villager(Agent):
     def __init__(self, n_agents):
         super().__init__(n_agents)
@@ -91,7 +89,6 @@ class Villager(Agent):
 
     def retaliate(self, voter):
         self.beliefs[voter] = min(self.beliefs.values())-1
-
 
 class LittleGirl(Villager):
     def __init__(self, n_agents, discovery_prob):
@@ -167,4 +164,3 @@ class LittleGirl(Villager):
                     elif agent in current_top_vote:
                         # Agent that is in current_top_vote will get higher reliability score
                         self.beliefs[agent] += 1
-

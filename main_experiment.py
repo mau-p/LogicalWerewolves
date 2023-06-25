@@ -1,4 +1,3 @@
-import argparse
 import game
 import pandas as pd
 from tqdm import tqdm
@@ -31,3 +30,4 @@ if __name__ == "__main__":
                     num_rounds += num_rounds_single
                 stats = pd.concat([stats, pd.DataFrame({'higher_order': [higher_order], 'dynamic_behavior': [dynamic_behavior], 'n_werewolves': [n_werewolves], 'winrate': [winrate/n_games], 'correct_score': [correct_score/n_games], 'num_rounds': [num_rounds/n_games]})], ignore_index=True)
     stats.to_csv('stats.csv', index=False)
+    
