@@ -47,14 +47,10 @@ class Villager(Agent):
         return self.tie_argmin(self.beliefs)
 
 
-class LittleGirl(Agent):
+class LittleGirl(Villager):
     def __init__(self, n_agents, discovery_prob):
         super().__init__(n_agents)
-        self.beliefs[self.id] = 1000000
         self.discovery_prob = discovery_prob
-
-    def vote(self):
-        return self.tie_argmin(self.beliefs)
     
     def look_overnight(self, werewolves):
         for werewolf in werewolves:
